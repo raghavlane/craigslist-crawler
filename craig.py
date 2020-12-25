@@ -34,6 +34,8 @@ def sendMess(mess):
 	print(message.sid)
 
 def sendEmail(message="test message"):
+	print('sending message: ')
+	print(message)
 
 	from email.mime.application import MIMEApplication
 	from email.mime.text import MIMEText
@@ -48,20 +50,25 @@ def sendEmail(message="test message"):
 
 	msg = MIMEMultipart('alternative')
 	msg['Subject'] = subject
-	msg['From'] = formataddr((str(Header('Craigslist User', 'utf-8')), 'admin@raghavlane.com'))
+	msg['From'] = formataddr((str(Header('Craigslist User', 'utf-8')), smtp_user))
 	msg['To'] = recipient
+	part1 = MIMEText(message, 'plain')
+	msg.attach(part1)
+	
 	try:
 		server = smtplib.SMTP_SSL(config.smtp_url, config.smtp_port)
 		server.ehlo()
 		server.login(smtp_user, smtp_password)
-		server.sendmail(smtp_user, recipient, message)
+		server.sendmail(msg['From'], msg['To'], msg.as_string())
 		server.close()
+		print('message sent')
 	except Exception as e:
 		print('Exception occured ')
 		print(e)
 
 url = config.craigslist_url
 processedIdUrlMap = get_list(url)
+sendEmail('test message')
 while (True):
 	time.sleep(config.period_check_in_mins *60 )
 	print("hitting the URL")
